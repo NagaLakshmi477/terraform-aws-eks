@@ -8,6 +8,11 @@ pipeline {
         account_id = '143094436925'
         project = 'roboshop'
     }
+    options {
+        timeout(time:30, unit:'MINUTES')
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+    }
     stages {
         stage('terraform init') {
             steps {
