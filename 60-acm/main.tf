@@ -5,7 +5,7 @@ resource "aws_acm_certificate" "nagalakshmi" {
   tags = merge(
     local.common_tags,
     {
-        Name = "${var.project}-${var.environment}"
+      Name = "${var.project}-${var.environment}"
     }
   )
 
@@ -33,5 +33,7 @@ resource "aws_route53_record" "nagalakshmi" {
 
 resource "aws_acm_certificate_validation" "nagalakshmi" {
   certificate_arn         = aws_acm_certificate.nagalakshmi.arn
-  validation_record_fqdns = [for record in aws_route53_record.nagalakshmi : record.fqdn]
+  validation_record_fqdns = [
+    for record in aws_route53_record.nagalakshmi : record.fqdn
+  ]
 }
