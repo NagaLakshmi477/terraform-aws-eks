@@ -20,7 +20,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 80-alb
+                         cd 80-eks
                          terraform init -reconfigure
                     """ }
                 
@@ -36,7 +36,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 80-alb
+                         cd 80-eks
                          terraform plan
                     """ }
                 
@@ -51,7 +51,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 80-alb
+                         cd 80-eks
                          terraform apply -auto-approve
                     """ }
                 
