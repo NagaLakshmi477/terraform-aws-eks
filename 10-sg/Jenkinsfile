@@ -20,7 +20,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 00-vpc
+                         cd 10-sg
                          terraform init -reconfigure
                     """ }
                 
@@ -36,7 +36,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 00-vpc
+                         cd 10-sg
                          terraform plan
                     """ }
                 
@@ -51,7 +51,7 @@ pipeline {
                     
                   withAWS(credentials: 'aws-auth', region: 'us-east-1') {
                     sh """ 
-                         cd 00-vpc
+                         cd 10-sg
                          terraform apply -auto-approve
                     """ }
                 
@@ -60,16 +60,7 @@ pipeline {
             }
         
         }
-// downstraem job
-        stage('Trigger Security Group') {
-            steps {
-        script {
-            build job: '10-sg',
-                  propagate: false, // even if SG fails VPC will not effect
-                  wait: false // vpc will not wait for sg piplene completion
-        }
-    }
-}
+
     }
     
 
