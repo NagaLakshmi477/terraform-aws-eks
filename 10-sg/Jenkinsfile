@@ -1,67 +1,111 @@
 pipeline {
-    agent {
+    agent  {
         label 'AGENT-1'
     }
-    environment {
+    environment { 
         appVersion = ''
-        region = 'us-east-1'
-        account_id = '143094436925'
-        project = 'roboshop'
+        REGION = "us-east-1"
+        ACC_ID = "315069654700"
+        PROJECT = "roboshop"
     }
     options {
-        timeout(time:30, unit:'MINUTES')
+        timeout(time: 30, unit: 'MINUTES') 
         disableConcurrentBuilds()
         ansiColor('xterm')
     }
+    // Build
     stages {
-        stage('terraform init') {
+        stage('init') {
             steps {
                 script {
-                    
-                  withAWS(credentials: 'aws-auth', region: 'us-east-1') {
-                    sh """ 
-                         cd 10-sg
-                         terraform init -reconfigure
-                    """ }
-                
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh """
+                            cd 10-sg
+                            terraform init -reconfigure
+                        """
+                    }
                 }
-            
             }
-        
         }
 
-        stage('terraform plan') {
+        stage('plan') {
             steps {
                 script {
-                    
-                  withAWS(credentials: 'aws-auth', region: 'us-east-1') {
-                    sh """ 
-                         cd 10-sg
-                         terraform plan
-                    """ }
-                
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh """
+                            cd 10-sg
+                            terraform plan
+                        """
+                    }
                 }
-            
             }
-        
         }
-        stage('terraform apply') {
+        stage('apply') {
             steps {
                 script {
-                    
-                  withAWS(credentials: 'aws-auth', region: 'us-east-1') {
-                    sh """ 
-                         cd 10-sg
-                         terraform apply -auto-approve
-                    """ }
-                
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh """
+                            cd 10-sg
+                            terraform apply -auto-approve
+                        """
+                    }
                 }
-            
             }
-        
+        }
+        stage('Bastion EKS ACM ALB') {
+            parallel {
+                stage('Trigger Bastion') {
+                    steps {
+                        script {
+                            build job: '20-bastion', 
+                            propagate: false,  // even SG fails VPC will not be effected
+                            wait: false // VPC will not wait for SG pipeline completion
+                        }
+                    }
+                }
+                stage('Trigger EKS') {
+                    steps {
+                        script {
+                            build job: '80-eks', 
+                            propagate: false,  // even SG fails VPC will not be effected
+                            wait: false // VPC will not wait for SG pipeline completion
+                        }
+                    }
+                }
+                stage('ACM') {
+                    steps {
+                        script {
+                            build job: '60-acm', 
+                            propagate: false,  // even SG fails VPC will not be effected
+                            wait: false // VPC will not wait for SG pipeline completion
+                        }
+                    }  
+                }
+            }
+        }
+        stage('Trigger ALB') {
+            steps {
+                script {
+                    build job: '70-frontend-alb', 
+                    propagate: false,  // even SG fails VPC will not be effected
+                    wait: false // VPC will not wait for SG pipeline completion
+                }
+            }
         }
 
+        
     }
-    
 
+    post { 
+        always { 
+            echo 'I will always say Hello again!'
+            deleteDir()
+        }
+        success { 
+            echo 'Hello Success'
+        }
+        failure { 
+            echo 'Hello Failure'
+        }
+    }
 }
