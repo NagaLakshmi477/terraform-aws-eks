@@ -4,7 +4,7 @@ module "ingress_alb" {
   environment = var.environment
 
   
-  sg_name = " ingress-alb "
+  sg_name = "ingress-alb"
   sg_description = " for ingress alb"
  
 

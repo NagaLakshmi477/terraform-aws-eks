@@ -1,0 +1,18 @@
+{
+  "Comment": "ACM certificate validation",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_ba32f19655e28d51c4ee0c93892c903f.nagalakshmi.site.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "_0df641313442e47bcc2c9623720defec.jkddzztszm.acm-validations.aws."
+          }
+        ]
+      }
+    }
+  ]
+}
